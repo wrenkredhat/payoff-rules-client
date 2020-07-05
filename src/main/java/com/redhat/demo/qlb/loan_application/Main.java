@@ -66,8 +66,8 @@ public class Main {
 
 		KieCommands commandFactory = kieServices.getCommands();
 		//The identifiers that we provide in the insert commands can later be used to retrieve the object from the response.
-		commands.add(commandFactory.newInsert(getApplicant(), "applicant"));
-		commands.add(commandFactory.newInsert(getLoan(), "loan"));
+		commands.add(commandFactory.newInsert(null, "applicant"));
+		commands.add(commandFactory.newInsert(null, "loan"));
 		commands.add(commandFactory.newStartProcess("loan-application.loan-application-decision-flow"));
 
 		/*
@@ -81,34 +81,9 @@ public class Main {
 		ExecutionResults results = response.getResult();
 
 		//We can retrieve the objects from the response using the identifiers we specified in the Insert commands.
-		Applicant resultApplicant = (Applicant) results.getValue("applicant");
-		Loan resultLoan = (Loan) results.getValue("loan");
+		Object resultApplicant = (Object) results.getValue("applicant");
+		Object resultLoan = (Object) results.getValue("loan");
 
-		if (resultLoan.isApproved()) {
-			System.out.println("Loan has been approved.");
-			System.out.println("Interest rate is: " + resultLoan.getInterestRate());
-			System.out.println("Monthly repayment is: " + resultLoan.getMonthlyRepayment());
-		} else {
-			System.out.println("Loan has been approved.");
-		}
-
-	}
-
-	private static Applicant getApplicant() {
-		Applicant applicant = new Applicant();
-		applicant.setName("ddoyle");
-		applicant.setAge(39);
-		applicant.setMonthlyIncome(70000);
-		applicant.setCreditScore(450);
-		applicant.setYearlyIncome(70000);
-		return applicant;
-	}
-
-	private static Loan getLoan() {
-		Loan loan = new Loan();
-		loan.setAmount(10000);
-		loan.setDuration(10);
-		return loan;
 	}
 
 }
