@@ -2,6 +2,7 @@ package com.bmwfs.payoff.rules.rulesclient;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,10 +34,12 @@ public class DocumentValidator {
 
 	private static final String PASSWORD = "kieserver1!";
 
-	private static final String STATELESS_KIE_SESSION_ID = "default-stateless-ksession";
+	private static final String STATELESS_KIE_SESSION_ID = "normal-stateless-ksession";
 
 	// We use the container 'alias' instead of container name to decouple the client from the KIE-Contianer deployments.
-	private static final String CONTAINER_ID = "loan-application";
+	// private static final String CONTAINER_ID = "pomgr-doc-validation";
+	private static final String CONTAINER_ID = "PayOffManager_1.0.0-SNAPSHOT";
+	// private static final String CONTAINER_ID = "DocumentManagement";
 
 	
 	RuleServicesClient rulesClient;
@@ -62,7 +65,7 @@ public class DocumentValidator {
 	}
 	
 	
-	public Offer validateOffer(  Offer offer  ) {
+	public Offer validateOffer(  Offer offer, Document... docs  ) {
 	
 		List<Command<?>> commands = new ArrayList<>();
 
@@ -71,34 +74,38 @@ public class DocumentValidator {
 		// retrieve the object from the response.
 		commands.add(commandFactory.newInsert(offer, "offer"));
 		
-
+		commands.add(commandFactory.newInsertElements(  Arrays.asList(docs), "docs" ));
 		commands.add(commandFactory.newFireAllRules());
 				
-		commands.add( commandFactory.newGetObjects( new ClassObjectFilter(Document.class), "validatedDocuments" ));
+		// commands.add( commandFactory.newGetObjects( new ClassObjectFilter(Document.class), "validatedDocuments" ));
 		
 		/*
 		 * The BatchExecutionCommand contains all the commands we want to execute in the
 		 * rules session, as well as the identifier of the session we want to use.
 		 */
-		BatchExecutionCommand batchExecutionCommand = commandFactory.newBatchExecution(commands, STATELESS_KIE_SESSION_ID);
+		BatchExecutionCommand batchExecutionCommand = commandFactory.newBatchExecution(commands, STATELESS_KIE_SESSION_ID );
 
 		ServiceResponse<ExecutionResults> response = rulesClient.executeCommandsWithResults(CONTAINER_ID, batchExecutionCommand);
 
 		ExecutionResults results = response.getResult();
+		
+		
 
 		// specified in the Insert commands.
 		Offer resultOffer  = (Offer) results.getValue("offer");
 		
-		Collection<Document> valDocs = (Collection<Document>) results.getValue( "validatedDocuments" );
+		// Collection<Document> valDocs = (Collection<Document>) results.getValue( "validatedDocuments" );
 		
-		System.out.println ("valDocs:" + valDocs )
+		Object valDocs = results.getValue("offer");
+		
+		System.out.println ("valDocs:" + valDocs );
 
 		return resultOffer;
 		
 	}
 	
 	
-	public void main( String args[] )   {
+	static public void main( String args[] )   {
 		
 		Offer o = new Offer();
 		
@@ -110,6 +117,13 @@ public class DocumentValidator {
 		d.setValid(false);
 		
 		d.setDocumentTypeId( new BigInteger("119") );
+		
+		DocumentValidator dv = new DocumentValidator();
+		
+		dv.createServices();
+		dv.validateOffer(o, d);
+		
+		
 	}
 	
 }

@@ -19,8 +19,8 @@ import org.kie.server.client.KieServicesFactory;
 import org.kie.server.client.RuleServicesClient;
 import org.kie.server.client.credentials.EnteredCredentialsProvider;
 
-import com.redhat.demo.qlb.loan_application.model.Applicant;
-import com.redhat.demo.qlb.loan_application.model.Loan;
+// import com.redhat.demo.qlb.loan_application.model.Applicant;
+// import com.redhat.demo.qlb.loan_application.model.Loan;
 
 /**
  * KIE-Server client example for the Quick Loan Bank demo that can be found here: https://github.com/jbossdemocentral/rhdm7-qlb-loan-demo
