@@ -2,13 +2,16 @@ package com.bmwfs.payoff.rules.rulesclient;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.kie.api.KieServices;
 import org.kie.api.command.BatchExecutionCommand;
 import org.kie.api.command.Command;
 import org.kie.api.command.KieCommands;
+import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.ExecutionResults;
+import org.kie.api.runtime.ObjectFilter;
 import org.kie.server.api.marshalling.MarshallingFormat;
 import org.kie.server.api.model.ServiceResponse;
 import org.kie.server.client.CredentialsProvider;
@@ -67,22 +70,28 @@ public class DocumentValidator {
 		// The identifiers that we provide in the insert commands can later be used to
 		// retrieve the object from the response.
 		commands.add(commandFactory.newInsert(offer, "offer"));
+		
 
 		commands.add(commandFactory.newFireAllRules());
-
+				
+		commands.add( commandFactory.newGetObjects( new ClassObjectFilter(Document.class), "validatedDocuments" ));
+		
 		/*
 		 * The BatchExecutionCommand contains all the commands we want to execute in the
 		 * rules session, as well as the identifier of the session we want to use.
 		 */
 		BatchExecutionCommand batchExecutionCommand = commandFactory.newBatchExecution(commands, STATELESS_KIE_SESSION_ID);
 
-		ServiceResponse<ExecutionResults> response = rulesClient.executeCommandsWithResults(CONTAINER_ID,
-				batchExecutionCommand);
+		ServiceResponse<ExecutionResults> response = rulesClient.executeCommandsWithResults(CONTAINER_ID, batchExecutionCommand);
 
 		ExecutionResults results = response.getResult();
 
 		// specified in the Insert commands.
 		Offer resultOffer  = (Offer) results.getValue("offer");
+		
+		Collection<Document> valDocs = (Collection<Document>) results.getValue( "validatedDocuments" );
+		
+		System.out.println ("valDocs:" + valDocs )
 
 		return resultOffer;
 		
