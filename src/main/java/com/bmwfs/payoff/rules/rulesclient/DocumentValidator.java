@@ -23,6 +23,7 @@ import org.kie.server.client.RuleServicesClient;
 import org.kie.server.client.credentials.EnteredCredentialsProvider;
 
 import com.bmwfs.payoff.rules.model.Document;
+import com.bmwfs.payoff.rules.model.DocumentField;
 import com.bmwfs.payoff.rules.model.Offer;
 
 
@@ -65,7 +66,7 @@ public class DocumentValidator {
 	}
 	
 	
-	public Offer validateOffer(  Offer offer, Document... docs  ) {
+	public Offer validateOffer(  Offer offer, Document... ds  ) {
 	
 		List<Command<?>> commands = new ArrayList<>();
 
@@ -74,10 +75,15 @@ public class DocumentValidator {
 		// retrieve the object from the response.
 		commands.add(commandFactory.newInsert(offer, "offer"));
 		
-		commands.add(commandFactory.newInsertElements(  Arrays.asList(docs), "docs" ));
+		for ( Document d : ds ) {
+			System.out.println ( "d-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
+			commands.add(commandFactory.newInsert(d));
+		}
+		
+		// commands.add(commandFactory.newInsertElements(  Arrays.asList(docs), "docs" ));
 		commands.add(commandFactory.newFireAllRules());
 				
-		// commands.add( commandFactory.newGetObjects( new ClassObjectFilter(Document.class), "validatedDocuments" ));
+		commands.add( commandFactory.newGetObjects( new ClassObjectFilter(Document.class), "validatedDocuments" ));
 		
 		/*
 		 * The BatchExecutionCommand contains all the commands we want to execute in the
@@ -89,16 +95,18 @@ public class DocumentValidator {
 
 		ExecutionResults results = response.getResult();
 		
-		
-
 		// specified in the Insert commands.
 		Offer resultOffer  = (Offer) results.getValue("offer");
 		
-		// Collection<Document> valDocs = (Collection<Document>) results.getValue( "validatedDocuments" );
+		Collection<Document> valDocs = (Collection<Document>) results.getValue( "validatedDocuments" );
 		
-		Object valDocs = results.getValue("offer");
+		// Object valDocs = results.getValue("docs");
 		
-		System.out.println ("valDocs:" + valDocs );
+		System.out.println ("valDocs::" + valDocs );
+		
+		for  (  Document d : valDocs ) {
+			System.out.println ( "d-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
+		}
 
 		return resultOffer;
 		
@@ -114,15 +122,20 @@ public class DocumentValidator {
 		Document d = new Document();
 		
 		d.setDocumentId(new BigInteger("01"));
-		d.setValid(false);
+		d.setValid(true);
 		
 		d.setDocumentTypeId( new BigInteger("119") );
+
+		d.setFields(new ArrayList<DocumentField>());
+
+		DocumentField f;
+		
+		f = new DocumentField();  f.setFieldName("Kunden Vorname");  f.setFieldValue("Sreejith");  d.getFields().add(f);
 		
 		DocumentValidator dv = new DocumentValidator();
 		
 		dv.createServices();
 		dv.validateOffer(o, d);
-		
 		
 	}
 	
