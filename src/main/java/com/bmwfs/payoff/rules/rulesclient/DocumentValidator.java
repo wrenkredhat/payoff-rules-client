@@ -24,6 +24,7 @@ import org.kie.server.client.credentials.EnteredCredentialsProvider;
 
 import com.bmwfs.payoff.rules.model.Document;
 import com.bmwfs.payoff.rules.model.DocumentField;
+import com.bmwfs.payoff.rules.model.Error;
 import com.bmwfs.payoff.rules.model.Offer;
 
 
@@ -138,6 +139,12 @@ public class DocumentValidator {
 		
 		for  (  Document dout : valDocs ) {
 			System.out.println ( "dout-id:" + dout.getDocumentId() + ":valid:" + dout.getValid() );
+			
+			for ( Error e : dout.getErrors() ) {
+				System.out.println( "Error:Rule:" + e.getRuleName() );
+				System.out.println( "Mesag:Rule:" + e.getMessage() );
+				
+			}
 		}
 		
 	}
