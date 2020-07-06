@@ -66,7 +66,7 @@ public class DocumentValidator {
 	}
 	
 	
-	public Offer validateOffer(  Offer offer, Document... ds  ) {
+	public Collection<Document> validateOffer(  Offer offer, Document... ds  ) {
 	
 		List<Command<?>> commands = new ArrayList<>();
 
@@ -76,7 +76,7 @@ public class DocumentValidator {
 		commands.add(commandFactory.newInsert(offer, "offer"));
 		
 		for ( Document d : ds ) {
-			System.out.println ( "d-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
+			// System.out.println ( "d-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
 			commands.add(commandFactory.newInsert(d));
 		}
 		
@@ -104,11 +104,7 @@ public class DocumentValidator {
 		
 		System.out.println ("valDocs::" + valDocs );
 		
-		for  (  Document d : valDocs ) {
-			System.out.println ( "d-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
-		}
-
-		return resultOffer;
+		return valDocs;
 		
 	}
 	
@@ -135,7 +131,14 @@ public class DocumentValidator {
 		DocumentValidator dv = new DocumentValidator();
 		
 		dv.createServices();
-		dv.validateOffer(o, d);
+		
+		System.out.println ( "din-id:" + d.getDocumentId() + ":valid:" + d.getValid() );
+		
+		Collection<Document> valDocs = dv.validateOffer(o, d);
+		
+		for  (  Document dout : valDocs ) {
+			System.out.println ( "dout-id:" + dout.getDocumentId() + ":valid:" + dout.getValid() );
+		}
 		
 	}
 	
